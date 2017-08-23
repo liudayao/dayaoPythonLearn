@@ -119,7 +119,83 @@ class Dog(Mammal, RunnableMixIn, CarnivorousMixIn)#多重继承
     pass
 
 ### 2.4 定制类
+# 2.4.1 __str__
+class Student(object):
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return 'Student object (name=%s)' % self.name
+    __repr__ = __str__
+>>> print(Student('Michael'))#调用__str__()，返回用户看到的字符串
+>>> s = Student('Michael')
+>>> s                         #调用__repr__()，返回程序开发者看到的字符串
+
+# 2.4.2 __iter__
+class Fib(object):
+    def __init__(self):
+        self.a, self.b = 0, 1 # 初始化两个计数器a，b
+
+    def __iter__(self): #让类可以用于for循环
+        return self # 实例本身就是迭代对象，故返回自己。
+
+    def __next__(self):
+        self.a, self.b = self.b, self.a + self.b # 计算下一个值
+        if self.a > 100000: # 退出循环的条件
+            raise StopIteration()
+        return self.a # 返回下一个值
+>>> for n in Fib():   #把Fib实例作用于for循环
+...     print(n)
+
+# 2.4.3 __getitem__
+class Fib(object):
+    def __getitem__(self, n):   #让类像list一样，可通过下标取出元素
+        a, b = 1, 1
+        for x in range(n):
+            a, b = b, a + b
+        return a
+>>> f = Fib()
+>>> f[0]
+1
+>>> f[1]
+
+# 2.4.4 __getattr__
+class Student(object):
+
+    def __init__(self):
+        self.name = 'Michael'
+
+    def __getattr__(self, attr):
+        if attr=='score':
+            return 99
+>>> s = Student()
+>>> s.name
+'Michael'
+>>> s.score #当调用不存在的属性时，Python解释器会试图调用__getattr__(self, 'score')来尝试获得属性
+99          #这样，我们就有机会返回score的值
+
+# 2.4.5 __call__
+class Student(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self):  #让类可以直接对实例进行调用
+        print('My name is %s.' % self.name)
+
+>>> s = Student('Michael')
+>>> s() # self参数不要传入
+My name is Michael.
+
+>>> callable(Student()) #callable()，判断一个对象是否是“可调用”对象
+True
 
 ### 2.5 使用枚举类
+import Enum
+Month = Enum('Month', ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+#Month类型的枚举类，可以直接使用Month.Jan来引用一个常量，或者枚举它的所有成员
+>>> day1 = Weekday.Mon
+>>> print(day1)
+Weekday.Mon
+>>> print(Weekday.Tue)
+Weekday.Tue
 
 ### 2.6 使用元类
